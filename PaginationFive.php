@@ -2,28 +2,29 @@
 /**
  * @author: Fred07
  * @package: CodeIgniter
- * @version: 1.0
+ * @version: 1.1
  * 2012/11/18
  */
 
 class PaginationFive
-{	
-	var $base_url = '';
-	var $para = '';				//$parameters behind 'page' param
-	var $total_page = '';
-	var $link_display = 10;
-	var $cur_page = '';
-	var $cur_page_pos = 1;		//set current page's position in the link queue.
-	var $cur_page_mark = TRUE;
-	var $mark_beg = "<b style='font-size:30px;'>";
-	var $mark_end = "</b>";
-	var $first_and_last = TRUE;
-	var $first_tag_name = "第一頁";
-	var $last_tag_name = "最末頁";
-	var $prev_next = TRUE;
-	var $prev_tag_name = "上一頁";
-	var $next_tag_name = "下一頁";
-	var $space = "&nbsp;";
+{
+	public $base_url = '';
+	public $para = '';				//$parameters behind 'page' param
+	public $total_page = '';
+	public $link_display = 10;
+	public $cur_page = '';
+	public $cur_page_pos = 1;		//set current page's position in the link queue.
+	public $cur_page_mark = TRUE;
+	public $prefix = "<b style='font-size:30px;'>";
+	public $suffix = "</b>";
+	public $first_and_last = TRUE;
+	public $first_tag_name = "第一頁";
+	public $last_tag_name = "最末頁";
+	public $prev_next = TRUE;
+	public $prev_tag_name = "上一頁";
+	public $next_tag_name = "下一頁";
+	public $debug_mode = FALSE;
+	private $space = "&nbsp;";
 	
 	/**
 	 * Constructor
@@ -33,6 +34,7 @@ class PaginationFive
 	 */
 	function __construct($params = array())
 	{
+		define("FIRST_PAGE", 1, TRUE);
 		if (count($params) > 0)
 		{
 			$this->initialize($params);
@@ -78,15 +80,15 @@ class PaginationFive
 			$url = $this->base_url."/1".(($this->para?"/".$this->para:NULL));
 			$link .= $this->_anchor_construct($url,$this->first_tag_name);
 		}
-		if($this->prev_next && $this->cur_page > 1)	//print prev tag anchor
+		if($this->prev_next && $this->cur_page > FIRST_PAGE)	//print prev tag anchor
 		{
 			$url = $this->base_url."/".($this->cur_page-1).(($this->para?"/".$this->para:NULL));
 			$link .= $this->_anchor_construct($url,$this->prev_tag_name);
 		}
 		
 		//caculate first link number
-		$first_link_n = 1;
-		if(($this->cur_page - $this->cur_page_pos) >= 1)
+		$first_link_n = FIRST_PAGE;
+		if(($this->cur_page - $this->cur_page_pos) >= FIRST_PAGE)
 		{
 			$first_link_n = $this->cur_page - $this->cur_page_pos + 1;
 		}
@@ -94,9 +96,9 @@ class PaginationFive
 		{
 			$first_link_n = $this->total_page - $this->link_display + 1;
 			//avoid the situation that link_display > total_page, some minus number may appear
-			if($first_link_n < 1)
+			if($first_link_n < FIRST_PAGE)
 			{
-				$first_link_n = 1;
+				$first_link_n = FIRST_PAGE;
 			}
 		}
 		
@@ -106,7 +108,7 @@ class PaginationFive
 			$url = $this->base_url."/".$page_n.(($this->para?"/".$this->para:NULL));
 			if($page_n == $this->cur_page AND $this->cur_page_mark)
 			{
-				$link .= $this->_anchor_construct($url,$page_n, $this->mark_beg, $this->mark_end);
+				$link .= $this->_anchor_construct($url,$page_n, $this->prefix, $this->suffix);
 			}else{
 				$link .= $this->_anchor_construct($url,$page_n);
 			}
@@ -160,14 +162,14 @@ class PaginationFive
 	private function _prevent_error()
 	{
 		$error_occur = FALSE;
-		if($this->cur_page < 1 OR $this->cur_page > $this->total_page OR $this->link_display == 0)
+		if($this->cur_page < FIRST_PAGE OR $this->cur_page > $this->total_page)
 		{
 			$this->_echo_error('Wrong parameters!! Check "cur_page" Please!');
 			$error_occur = TRUE;
 		}
 		if($this->link_display == 0)
 		{
-			$this->_echo_error('Wrong parameters!! "link_display" can not be 0!!');
+			//$this->_echo_error('Wrong parameters!! "link_display" can not be 0!!');
 			$error_occur = TRUE;
 		}
 		if($this->cur_page_pos > $this->link_display)
@@ -177,6 +179,7 @@ class PaginationFive
 		}
 		if($error_occur)
 		{
+			//return $this;
 			die();
 		}
 	}
@@ -190,7 +193,10 @@ class PaginationFive
 	 */
 	private function _echo_error($error)
 	{
-		echo "<b>" . $error . "</b>";
+		if($this->debug_mode)
+		{
+			echo "<b>" . $error . "</b>";
+		}
 	}
 }
 // END PaginationFive Class

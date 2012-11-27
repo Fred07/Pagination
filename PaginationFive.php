@@ -2,8 +2,9 @@
 /**
  * @author: Fred07
  * @package: CodeIgniter
- * @version: 1.1
- * 2012/11/18
+ * @version: 1.2
+ * 2012/11/28: 新增 $isPreview 控制是否顯示預覽連結(最前2頁與最後2頁)
+ * 				$page_preview 預覽的頁數
  */
 
 class PaginationFive
@@ -21,9 +22,13 @@ class PaginationFive
 	public $first_tag_name = "第一頁";
 	public $last_tag_name = "最末頁";
 	public $prev_next = TRUE;
-	public $prev_tag_name = "上一頁";
-	public $next_tag_name = "下一頁";
+	public $prev_tag_name = "<";
+	public $next_tag_name = ">";
 	public $debug_mode = FALSE;
+	public $isPreview = FALSE;
+	public $page_preview = 2;		//number of page to preview
+	public $conjunction = '... ';
+	
 	private $space = "&nbsp;";
 	
 	/**
@@ -102,10 +107,21 @@ class PaginationFive
 			}
 		}
 		
+		//page preview
+		if($this->isPreview && $first_link_n > FIRST_PAGE + $this->page_preview)
+		{
+			for($i = FIRST_PAGE; $i < FIRST_PAGE+$this->page_preview; $i++)
+			{
+				$url = $this->base_url.'/'.$i.(($this->para)?'/'.$this->para:NULL);
+				$link .= $this->_anchor_construct($url,$i);
+			}
+			$link .= $this->conjunction;
+		}
+		
 		//print each link
 		for($page_n = $first_link_n;$page_n <= $first_link_n + $this->link_display - 1;$page_n++)
 		{
-			$url = $this->base_url."/".$page_n.(($this->para?"/".$this->para:NULL));
+			$url = $this->base_url."/".$page_n.(($this->para)?"/".$this->para:NULL);
 			if($page_n == $this->cur_page AND $this->cur_page_mark)
 			{
 				$link .= $this->_anchor_construct($url,$page_n, $this->prefix, $this->suffix);
@@ -119,14 +135,26 @@ class PaginationFive
 			}
 		}
 		
+		//page preview
+		if($this->isPreview && $first_link_n + $this->link_display - 1 < $this->total_page - $this->page_preview)
+		{
+			$link .= $this->conjunction;
+			for($i = $this->total_page-$this->page_preview+1; $i <= $this->total_page;$i++)
+			{
+				$url = $this->base_url.'/'.$i.(($this->para)?'/'.$this->para:NULL);
+				$link .= $this->_anchor_construct($url,$i);
+			}
+			
+		}
+		
 		if($this->prev_next && $this->cur_page < $this->total_page)	//print next tag anchor
 		{
-			$url = $this->base_url."/".($this->cur_page+1).(($this->para?"/".$this->para:NULL));
+			$url = $this->base_url."/".($this->cur_page+1).(($this->para)?"/".$this->para:NULL);
 			$link .= $this->_anchor_construct($url,$this->next_tag_name);
 		}
 		if($this->first_and_last)	//print last anchor
 		{
-			$url = $this->base_url."/".$this->total_page.(($this->para?"/".$this->para:NULL));
+			$url = $this->base_url."/".$this->total_page.(($this->para)?"/".$this->para:NULL);
 			$link .= $this->_anchor_construct($url,$this->last_tag_name);
 		}
 		return $link;

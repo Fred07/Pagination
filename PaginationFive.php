@@ -2,18 +2,8 @@
 /**
  * @author: Five
  * @package: CodeIgniter
- * @version: 1.5
- * 2013/06/13:	增加 public $cur_page_anchor, $cur_page_prefix, $cur_page_suffix,並調整頁籤 html結構
- * 				增加 public $mode, private $page_key
- * 				增加 setUrlParameter() function
- * 				增加 _url_builder() function
- * 				修改 public $prev_tag_name, $next_tag_name default value
- * 				修改 public $cur_page default value: 1, public $total_page default value:0
- * 				修正 程式中的判斷式 (似乎原本的錯誤並無影響)
- * 				修正錯誤訊息 - 第一條
- * 				修正 _prevent_error 為 _error_occur
- * 				修正 error發生時的流程(_error_occur)
- * 				移除 public $cur_page_mark
+ * @version: 1.6
+ * 2014/08/25:	新增三個接口 : set_total(), set_limit(), set_page().
  */
 
 class PaginationFive
@@ -81,12 +71,34 @@ class PaginationFive
 	}
 
 	/**
+	 * basic settings
+	 * set_total : total page
+	 * set_limit : how many pages display at once
+	 * set_page  : current page number
+	 */
+	public function set_total($total_page)
+	{
+	    $this->total_page = $total_page;
+	}
+	
+	public function set_limit($link_display)
+	{
+	    $this->link_display = $link_display;
+	}
+	
+	public function set_page($cur_page)
+	{
+	    $this->cur_page = $cur_page;
+	}
+	
+	
+	/**
 	 * Create pagination link
 	 * 
 	 * @access	public
-	 * @return	$link String
+	 * @return	String : pagination string
 	 */
-	function create_link()
+	public function create_link()
 	{
 		$link = "";
 

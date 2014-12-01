@@ -1,4 +1,4 @@
-pagination
+Pagination
 ==========
 
-simple pagination
+PHP library
